@@ -14,11 +14,13 @@ ENV GROUP_ID ${GROUP_ID:-1000}
 RUN groupadd -g ${GROUP_ID} bitcoin \
 	&& useradd -u ${USER_ID} -g bitcoin -s /bin/bash -m -d /bitcoin bitcoin
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys C70EF1F0305A1ADB9986DBD8D46F45428842CE5E && \
-    echo "deb http://ppa.launchpad.net/bitcoin/bitcoin/ubuntu xenial main" > /etc/apt/sources.list.d/bitcoin.list
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		bitcoind \
+RUN set -x \
+	&& apt-get update && apt-get install -y --no-install-recommends \
+		ca-certificates \
+		wget \
+    && wget https://bitcoincore.org/bin/bitcoin-core-0.19.1/bitcoin-0.19.1-x86_64-linux-gnu.tar.gz \
+    && tar -xzvf bitcoin-0.19.1-x86_64-linux-gnu.tar.gz \
+    && mv bitcoin-0.19.1/bin/* /usr/bin/ \
 	&& apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # grab gosu for easy step-down from root
